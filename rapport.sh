@@ -267,12 +267,10 @@ echo -e "\rTerminal:\t\t\t$TERM${TERMINAL:+ ($TERMINAL)}"
 
 echo
 
-sudo apt install -y dpaste pastebinit;
 dpkg -l | grep -v ^ii;
 df -Thx tmpfs ;
 sudo journalctl -p0 -p1 -p2 -p3 -r; 
 sudo journalctl -b -p0 -p1 -p2 -p3 -r; 
 sudo journalctl -b -p0 -p1 -p2 -p3 -r;
-sudo bash rapport.sh
   
 
