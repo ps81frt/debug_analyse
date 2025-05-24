@@ -268,12 +268,24 @@ echo -e "\rTerminal:\t\t\t$TERM${TERMINAL:+ ($TERMINAL)}"
 echo
 
 dpkg -l | grep -v ^ii;
+echo ""
 df -Thx tmpfs ;
+echo ""
 ls /var/crash/;
+echo ""
+echo "Liste BOOT"
+echo ""
 sudo journalctl --list-boots
-sudo journalctl -p0 -p1 -p2 -p3 -r; 
-sudo journalctl -b -p0 -p1 -p2 -p3 -r; 
-sudo journalctl -b-10 -p0 -p1 -p2 -p3 -r;
+echo ""
+sudo journalctl -p0 -p1 -p2 -p3 ;
+echo ""
+echo "Rapport demarrage"
+echo ""
+sudo journalctl -b -p0 -p1 -p2 -p3 ; 
+echo ""
+echo "Rapport du 10 eme demarrage precedent"
+echo ""
+sudo journalctl -b-10 -p0 -p1 -p2 -p3 ;
 #apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
 #apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
   
