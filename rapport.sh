@@ -230,10 +230,10 @@ if [[ -n $NET_INERFACES ]]; then
 fi
 comment
 # echo -en "MacAddress :                    " ; cat /sys/class/net/ens33/address
-if [[ -r /var/lib/dbus/machine-id ]]; then
-	COMPUTER_ID=$(</var/lib/dbus/machine-id)
-	echo -e "Computer ID:\t\t\t$COMPUTER_ID"
-fi
+#if [[ -r /var/lib/dbus/machine-id ]]; then
+#	COMPUTER_ID=$(</var/lib/dbus/machine-id)
+#	echo -e "Computer ID:\t\t\t$COMPUTER_ID"
+#fi
 
 TIME_ZONE=$(timedatectl 2>/dev/null | grep -i 'time zone:\|timezone:' | sed -n 's/^.*: //p') # timedatectl show --value -p Timezone
 if [[ -z $TIME_ZONE ]]; then
