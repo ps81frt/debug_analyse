@@ -269,10 +269,11 @@ echo
 
 dpkg -l | grep -v ^ii;
 df -Thx tmpfs ;
+ls /var/crash/;
 sudo journalctl -p0 -p1 -p2 -p3 -r; 
 sudo journalctl -b -p0 -p1 -p2 -p3 -r; 
-sudo journalctl -b -p0 -p1 -p2 -p3 -r;
-apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
-apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
+sudo journalctl -b-1 -p0 -p1 -p2 -p3 -r;
+#apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
+#apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
   
 
