@@ -273,5 +273,6 @@ df -Thx tmpfs ;
 sudo journalctl -p0 -p1 -p2 -p3 -r; 
 sudo journalctl -b -p0 -p1 -p2 -p3 -r; 
 sudo journalctl -b -p0 -p1 -p2 -p3 -r;
+sudo bash rapport.sh
   
 
