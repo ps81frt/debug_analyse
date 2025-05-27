@@ -453,3 +453,5 @@ sudo dmesg --level=err,warn -T -f kern,syslog,daemon
 #sudo journalctl -b-10 -p0 -p1 -p2 -p3 ;
 #apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
 #apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
+echo ""
+uptime
