@@ -1,7 +1,7 @@
 # Si vous voulez partager le contenu installer pastebinit 
 # sudo apt install pastebinit
 # Commande pour export
-# sudo rapportV2.sh | pastebinit
+# sudo rapportV1.2.sh | pastebinit
 # partager le lien qui se trouvera a la dernière ligne de l'execution du script
 # https://dspaste.com/xxxxxx
 
