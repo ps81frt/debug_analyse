@@ -11,6 +11,15 @@
 
 # bash./info.sh
 
+if ! which command > /dev/null; then
+   echo -e "Commande non trouvée ! Installer (y/n) \c"
+   read
+   if "$REPLY" = "y"; then
+      sudo apt-get install pastebinit
+   fi
+fi
+
+
 if [[ $# -ne 0 ]]; then
 	echo "Usage: $0" >&2
 	exit 1
