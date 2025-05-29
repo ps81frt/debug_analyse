@@ -335,12 +335,10 @@ echo ""
 echo "===== MEMORY USAGE ====="
 echo ""
 free -h
-
 echo ""
 echo -e "\n===== TOP MEMORY CONSUMING PROCESSES ====="
 echo ""
 ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 11
-
 echo ""
 echo -e "\n===== VMSTAT SNAPSHOT ====="
 echo ""
@@ -409,11 +407,6 @@ grep -E 'Id=|ActiveEnterTimestampMonotonic=' | \
 paste - - | \
 sort -k2 -nr | head -n 10 | cut -d= -f2
 
-echo ""
-echo -e "\n===== SYSTEM BOOT LOGS (LAST 3 BOOTS) ====="
-echo ""
-journalctl --list-boots | head -n 6
-
 ##############################################################
 
 echo ""
@@ -423,6 +416,10 @@ dpkg -l | grep -v ^ii;
 echo ""
 echo -e "\n ===== Liste Kernel ==============="
 echo; dpkg -l | awk '!/^rc/ && / linux-(c|g|h|i|lo|m|si|t)/{print $1,$2,$3,$4 | "sort -k3V | column -t"}' ; echo -e "\nNoyau courant : $(uname -mr)"
+echo ""
+echo -e "\n=======    GRUB      =========="
+echo ""
+cat /etc/default/grub
 echo ""
 echo -e "\n ===== Liste Disk ================="
 echo ""
@@ -440,7 +437,7 @@ echo -e "\n======= Rapport  FULL       ======="
 echo ""
 sudo journalctl -p0 -p1 -p2 -p3 ;
 echo ""
-echo -e "\n======= Rapport demarrage=========="
+echo -e "\n======= Rapport BOOT    =========="
 echo ""
 sudo journalctl -b -p0 -p1 -p2 -p3 ; 
 echo ""
@@ -450,8 +447,10 @@ sudo dmesg --level=err,warn -T -f kern,syslog,daemon
 #echo ""
 #echo "\n=========Rapport du 10 eme demarrage precedent =========="
 #echo ""
-#sudo journalctl -b-10 -p0 -p1 -p2 -p3 ;
 #apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
 #apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
 echo ""
+echo -e "\n======= CONTENU VAR/CRASH   =========="
+ls /var/crash
+
 uptime
