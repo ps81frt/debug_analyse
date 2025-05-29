@@ -10,15 +10,16 @@
 #!/bin/bash
 
 # bash./info.sh
-
-REQUIRED_PKG="pastebinit"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
-echo Checking for $REQUIRED_PKG: $PKG_OK
-if [ "" = "$PKG_OK" ]; then
-  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
-  sudo apt install -y $REQUIRED_PKG
-fi
-
+$1=pastebinit
+install_if_not_exist() {
+  if dpkg -s "$1" &>/dev/null; then
+    PKG_EXIST=$(dpkg -s "$1" | grep "install ok installed")
+    if [[ -n "$PKG_EXIST" ]]; then
+      return
+    fi
+  fi
+  sudo apt install "$1" -y
+}
 
 if [[ $# -ne 0 ]]; then
 	echo "Usage: $0" >&2
