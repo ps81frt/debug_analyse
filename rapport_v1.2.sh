@@ -10,16 +10,14 @@
 #!/bin/bash
 
 # bash./info.sh
-$1=pastebinit
-install_if_not_exist() {
-  if dpkg -s "$1" &>/dev/null; then
-    PKG_EXIST=$(dpkg -s "$1" | grep "install ok installed")
-    if [[ -n "$PKG_EXIST" ]]; then
-      return
+
+programs=(pastebinit)
+
+for program in "${programs[@]}"; do
+    if ! command -v "$program" > /dev/null 2>&1; then
+        sudo apt install "$program" -y
     fi
-  fi
-  sudo apt install "$1" -y
-}
+done
 
 if [[ $# -ne 0 ]]; then
 	echo "Usage: $0" >&2
