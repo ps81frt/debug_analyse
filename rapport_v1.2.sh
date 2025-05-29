@@ -11,12 +11,12 @@
 
 # bash./info.sh
 
-if ! which command > /dev/null; then
-   echo -e "Commande non trouvée ! Installer (y/n) \c"
-   read
-   if "$REPLY" = "y"; then
-      sudo apt-get install pastebinit
-   fi
+REQUIRED_PKG="some-package"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+  sudo apt-get --yes install $REQUIRED_PKG
 fi
 
 
