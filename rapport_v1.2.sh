@@ -192,7 +192,7 @@ echo -en "Subsystem:"&& printf "%22s" && lspci -k | grep -EA2 'VGA|3D|2D|Display
 echo -en "Kernel driver:"&& printf "%18s" && lspci -k | grep -EA2 'VGA|3D|2D|Display' | sed -n '3s/^.*: //p'
 echo -en "Kernel modules:"&& printf "%17s" && lspci -k | grep -EA2 'VGA|3D|2D|Display' | sed -n '4s/^.*: //p'
 
-echo -en "Computer name:\t\t\t$HOSTNAME" # uname -n # hostname # /proc/sys/kernel/hostname
+#echo -en "Computer name:\t\t\t$HOSTNAME" # uname -n # hostname # /proc/sys/kernel/hostname
 
 if command -v iwgetid >/dev/null; then
 	NETWORKNAME=$(iwgetid -r || true)
