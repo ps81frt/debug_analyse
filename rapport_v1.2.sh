@@ -427,7 +427,7 @@ echo; dpkg -l | awk '!/^rc/ && / linux-(c|g|h|i|lo|m|si|t)/{print $1,$2,$3,$4 | 
 echo ""
 echo -e "\n=======    GRUB      =========="
 echo ""
-sed '/#/d' grub | tr -s '\n'
+sed '/#/d' /etc/default/grub | tr -s '\n'
 echo ""
 echo -e "\n ===== Liste Disk ================="
 echo ""
