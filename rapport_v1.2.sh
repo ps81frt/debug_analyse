@@ -18,7 +18,15 @@ for program in "${programs[@]}"; do
         sudo apt install "$program" -y
     fi
 done
-
+programs2=(iotop)
+for programio in "${programs2[@]}"; do
+    if ! command -v "$programio" > /dev/null 2>&1; then
+        sudo apt install "$programio" -y
+    fi
+done
+#
+#_________________________________________________________
+#
 if [[ $# -ne 0 ]]; then
 	echo "Usage: $0" >&2
 	exit 1
