@@ -5,8 +5,6 @@
 # partager le lien qui se trouvera a la dernière ligne de l'execution du script
 # https://dspaste.com/xxxxxx
 
-procps
-
 #!/bin/bash
 
 # bash./info.sh
