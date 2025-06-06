@@ -307,7 +307,7 @@ echo
 
 ##############################################################
 
-echo "===== CPU USAGE (top 10 processes) ====="
+echo "✔️===== CPU USAGE (top 10 processes) ====="
 echo ""
 ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -n 11
 
@@ -322,18 +322,18 @@ echo -e "\n===== LOAD AVERAGE ====="
 uptime
 echo ""
 ##############################################################
-echo "===== DISK USAGE ====="
+echo "✔️===== DISK USAGE ====="
 echo ""
 df -h | grep -v tmpfs
 
-echo -e "\n===== TOP 10 LARGEST FILES IN ROOT (/) ====="
+echo -e "\n✔️===== TOP 10 LARGEST FILES IN ROOT (/) ====="
 sudo du -ahx / | sort -rh | head -n 10
 
-echo -e "\n===== INODE USAGE ====="
+echo -e "\n✔️===== INODE USAGE ====="
 df -i
 ##############################################################
 echo ""
-echo "===== DISK I/O USING IOSTAT ====="
+echo "✔️===== DISK I/O USING IOSTAT ====="
 echo ""
 if command -v iostat &>/dev/null; then
     iostat -xz 1 3
@@ -342,7 +342,7 @@ else
 fi
 
 echo ""
-echo -e "\n===== DISK I/O USING IOTOP (Live Top) ====="
+echo -e "\n✔️===== DISK I/O USING IOTOP (Live Top) ====="
 echo ""
 if command -v iotop &>/dev/null; then
     echo "Showing top 10 I/O processes for 5 seconds..."
@@ -352,7 +352,7 @@ else
 fi
 
 echo ""
-echo -e "\n===== IO SNAPSHOT WITH VMSTAT ====="
+echo -e "\n✔️===== IO SNAPSHOT WITH VMSTAT ====="
 echo ""
 if command -v vmstat &>/dev/null; then
     vmstat 1 3
@@ -361,15 +361,15 @@ else
 fi
 ##############################################################
 echo ""
-echo "===== MEMORY USAGE ====="
+echo "✔️===== MEMORY USAGE ====="
 echo ""
 free -h
 echo ""
-echo -e "\n===== TOP MEMORY CONSUMING PROCESSES ====="
+echo -e "\n✔️===== TOP MEMORY CONSUMING PROCESSES ====="
 echo ""
 ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 11
 echo ""
-echo -e "\n===== VMSTAT SNAPSHOT ====="
+echo -e "\n✔️===== VMSTAT SNAPSHOT ====="
 echo ""
 if command -v vmstat &>/dev/null; then
     vmstat 1 3
@@ -379,17 +379,17 @@ fi
 ##############################################################
 
 echo ""
-echo "===== NETWORK INTERFACES (ip addr) ====="
+echo "✔️===== NETWORK INTERFACES (ip addr) ====="
 echo ""
 ip addr show
 
 echo ""
-echo -e "\n===== ROUTING TABLE (ip route) ====="
+echo -e "\n✔️===== ROUTING TABLE (ip route) ====="
 echo ""
 ip route show
 
 echo ""
-echo -e "\n===== DNS RESOLUTION TEST (resolv.conf + ping) ====="
+echo -e "\n✔️===== DNS RESOLUTION TEST (resolv.conf + ping) ====="
 echo ""
 echo "Configured DNS servers:"
 cat /etc/resolv.conf | grep nameserver
@@ -398,37 +398,37 @@ echo -e "\nTesting DNS resolution..."
 ping -c 2 google.com &>/dev/null && echo "✅ DNS resolution OK" || echo "❌ DNS resolution FAILED"
 
 echo ""
-echo -e "\n===== ACTIVE LISTENING PORTS (ss -tuln) ====="
+echo -e "\n✔️===== ACTIVE LISTENING PORTS (ss -tuln) ====="
 echo ""
 ss -tuln
 
 echo ""
-echo -e "\n===== ESTABLISHED CONNECTIONS ====="
+echo -e "\n✔️===== ESTABLISHED CONNECTIONS ====="
 echo ""
 ss -tun state established
 
 echo ""
-echo -e "\n===== INTERFACE STATS (ip -s link) ====="
+echo -e "\n✔️===== INTERFACE STATS (ip -s link) ====="
 echo ""
 ip -s link
 ##############################################################
 echo ""
-echo "===== SYSTEMD FAILED SERVICES ====="
+echo "✔️===== SYSTEMD FAILED SERVICES ====="
 echo ""
 sudo systemctl --failed
 
 echo ""
-echo -e "\n===== INACTIVE BUT NOT DISABLED SERVICES ====="
+echo -e "\n✔️===== INACTIVE BUT NOT DISABLED SERVICES ====="
 echo ""
 sudo systemctl list-units --type=service --state=inactive | grep -v "disabled" || echo "✅ All inactive services are disabled."
 
 echo ""
-echo -e "\n===== ENABLED SERVICES SET TO START ON BOOT ====="
+echo -e "\n✔️===== ENABLED SERVICES SET TO START ON BOOT ====="
 echo ""
 sudo systemctl list-unit-files --type=service | grep enabled
 
 echo ""
-echo -e "\n===== TOP 10 LONGEST RUNNING SERVICES ====="
+echo -e "\n✔️===== TOP 10 LONGEST RUNNING SERVICES ====="
 echo ""
 systemctl list-units --type=service --no-pager --no-legend | awk '{print $1}' | \
 xargs -n1 -I{} systemctl show -p Id,ActiveEnterTimestampMonotonic {} 2>/dev/null | \
@@ -439,47 +439,47 @@ sort -k2 -nr | head -n 10 | cut -d= -f2
 ##############################################################
 
 echo ""
-echo -e "\n ===== Liste paquets endommager ==="
+echo -e "\n ✔️===== Liste paquets endommager ==="
 echo ""
 dpkg -l | grep -v ^ii;
 echo ""
-echo -e "\n ===== Liste Kernel ==============="
+echo -e "\n ✔️===== Liste Kernel ==============="
 echo; dpkg -l | awk '!/^rc/ && / linux-(c|g|h|i|lo|m|si|t)/{print $1,$2,$3,$4 | "sort -k3V | column -t"}' ; echo -e "\nNoyau courant : $(uname -mr)"
 echo ""
-echo -e "\n=======    GRUB      =========="
+echo -e "\n✔️=======    GRUB      =========="
 echo ""
 sed '/#/d' /etc/default/grub | tr -s '\n'
 echo ""
-echo -e "\n ===== Liste Disk ================="
+echo -e "\n ✔️===== Liste Disk ================="
 echo ""
 df -Thx tmpfs ;
 echo ""
-echo -e "\n ===== Dossier Crash =============="
+echo -e "\n ✔️===== Dossier Crash =============="
 echo ""
 ls /var/crash/;
 echo ""
-echo -e "\n===== SYSTEM BOOT LOGS (LAST 3 BOOTS) ====="
+echo -e "\n✔️===== SYSTEM BOOT LOGS (LAST 3 BOOTS) ====="
 echo ""
 sudo journalctl --list-boots | head -n 6
 echo ""
-echo -e "\n======= Rapport  FULL       ======="
+echo -e "\n✔️======= Rapport  FULL       ======="
 echo ""
 sudo journalctl -p0 -p1 -p2 -p3 ;
 echo ""
-echo -e "\n======= Rapport BOOT    =========="
+echo -e "\n✔️======= Rapport BOOT    =========="
 echo ""
 sudo journalctl -b -p0 -p1 -p2 -p3 ; 
 echo ""
-echo -e "\n======= Rapport KERNEL   =========="
+echo -e "\n✔️======= Rapport KERNEL   =========="
 echo ""
 sudo dmesg --level=err,warn -T -f kern,syslog,daemon
 #echo ""
-#echo "\n=========Rapport du 10 eme demarrage precedent =========="
+#echo "\n✔️=========Rapport du 10 eme demarrage precedent =========="
 #echo ""
 #apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
 #apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
 echo ""
-#echo -e "\n======= CONTENU VAR/CRASH   =========="
+#echo -e "\n✔️======= CONTENU VAR/CRASH   =========="
 #ls /var/crash
 
 uptime
