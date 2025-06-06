@@ -5,14 +5,13 @@
 # partager le lien qui se trouvera a la dernière ligne de l'execution du script
 # https://dspaste.com/xxxxxx
 
-
+procps
 
 #!/bin/bash
 
 # bash./info.sh
 
 programs=(pastebinit)
-
 for program in "${programs[@]}"; do
     if ! command -v "$program" > /dev/null 2>&1; then
         sudo apt install "$program" -y
@@ -22,6 +21,18 @@ programs2=(iotop)
 for programio in "${programs2[@]}"; do
     if ! command -v "$programio" > /dev/null 2>&1; then
         sudo apt install "$programio" -y
+    fi
+done
+programs3=(sysstat)
+for programiss in "${programs3[@]}"; do
+    if ! command -v "$programiss" > /dev/null 2>&1; then
+        sudo apt install "$programiss" -y
+    fi
+done
+programs4=(procps)
+for programproc in "${programs4[@]}"; do
+    if ! command -v "$programproc" > /dev/null 2>&1; then
+        sudo apt install "$programproc" -y
     fi
 done
 #
