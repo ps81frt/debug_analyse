@@ -467,6 +467,6 @@ sudo dmesg --level=err,warn -T -f kern,syslog,daemon
 #apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
 echo ""
 echo -e "\n======= CONTENU VAR/CRASH   =========="
-ls /var/crash
+#ls /var/crash
 
 uptime
