@@ -475,7 +475,7 @@ sudo dmesg --level=err,warn -T -f kern,syslog,daemon
 #apport-unpack /var/crash/_usr_bin_firefox.1000.crash /tmp/crash-report;
 #apport-retrace --stdout /var/crash/_usr_bin_nautilus.1000.crash
 echo ""
-echo -e "\n======= CONTENU VAR/CRASH   =========="
+#echo -e "\n======= CONTENU VAR/CRASH   =========="
 #ls /var/crash
 
 uptime
