@@ -1,3 +1,6 @@
+# Dépendances
+# Traceroute
+which traceroute || sudo apt install traceroute
 #!/bin/bash
 
 TargetHost4=9.9.9.9
