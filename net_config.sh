@@ -8,7 +8,7 @@ ResultFile=/tmp/Rapport-reseau_$(hostname)_$(date +%Y-%m-%d_%H:%M).log
 while test $# -gt 0 ; do
     case "$1" in
         -p|--pause) 
-            Pause="echo 'Please type enter to proceed.' ; read";
+            Pause="echo 'veuillez taper Entrée pour continuer.' ; Lecture";
             shift ;;
         -h|--help)
             ShowHelp;
@@ -40,6 +40,8 @@ function CommandListIPv4 {
         "date"
         "uname -a"
         "cat /etc/os-release"
+        "ufw status"
+        "cat /etc/sysctl.conf | grep -v '#' | grep "\S""
         "iptables --list --numeric --verbose"
         "ls /etc/netplan/*"
         "cat /etc/netplan/*"
