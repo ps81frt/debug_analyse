@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TargetHost4=8.8.8.8
-TargetHost6=2001:4860:4860::8888
+TargetHost4=9.9.9.9
+TargetHost6=2620:fe::fe
 
 ResultFile=/tmp/Rapport-reseau_$(hostname)_$(date +%Y-%m-%d_%H:%M).log
 
@@ -48,7 +48,7 @@ function CommandListIPv4 {
         "cat /etc/resolv.conf"
         "cat /etc/hosts"
         "time nslookup $TargetHost4"
-        "time nslookup ietf.com"
+        "time nslookup quad9.net"
         "ip -4 neigh"
         "ip -4 address list"
         "ip -4 route show"
