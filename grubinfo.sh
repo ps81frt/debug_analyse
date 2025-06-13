@@ -46,7 +46,15 @@
 #
 #
 
+ResultFile=/tmp/Rapport-GRUB_$(hostname)_$(date +%Y-%m-%d_%H:%M).log
 
+function genReportGRUB () {
+
+uname -a
+
+echo 
+date
+echo
 echo "=================DMIDECODE======================"
 echo
 dmidecode --string='bios-vendor'
@@ -71,6 +79,8 @@ echo
 echo "====================LSBLK======================"
 echo
 lsblk -fe7
+echo
+lsblk -S
 echo
 echo "===================FICHIER BOOT======================"
 echo
@@ -120,3 +130,11 @@ cat /proc/cmdline
 echo
 echo "================type de demarrage =============="
 [ -d /sys/firmware/efi ] && echo "UEFI Boot Detected" || echo "Legacy BIOS Boot Detected"
+echo
+uptime
+
+}
+
+genReportGRUB | tee -a $ResultFile
+
+echo "Les resultats de l'analyse se trouve ${ResultFile}"
