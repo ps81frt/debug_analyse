@@ -6,7 +6,7 @@
 # https://dspaste.com/xxxxxx
 
 #wget https://raw.githubusercontent.com/ps81frt/debug_analyse/refs/heads/main/rapport_v1.2.sh
-#sudo bash rapport_v1.2.sh > $(date +%Y-%m-%d_%H:%M)_Rapport.txt
+#sudo bash rapport_v1.2.sh > $(date +%Y-%m-%d_%H-%M)_Rapport.txt
 
 
 #!/bin/bash
