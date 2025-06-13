@@ -79,7 +79,7 @@ sudo mkdir /media/InfoBoot
 truc=$(lsblk -f | grep 'vfat\|fat32'| cut -d ' ' -f14)
 mount -U $truc /media/InfoBoot
 ls /media/InfoBoot/*/* 
-umount -a
+umount -U $truc
 rm -rf /media/InfoBoot/
 echo 
 echo "==================== GRUB ENTRY================"
@@ -112,7 +112,7 @@ echo "=============================================="
 echo 
 findmnt --fstab
 echo 
-echo "=============================================="
+echo "==============================================="
 echo "/proc/cmdline "
 cat /proc/cmdline
 echo

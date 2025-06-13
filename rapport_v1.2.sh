@@ -13,6 +13,9 @@
 
 # bash./info.sh
 
+
+
+
 programs=(pastebinit)
 for program in "${programs[@]}"; do
     if ! command -v "$program" > /dev/null 2>&1; then
@@ -40,6 +43,11 @@ done
 #
 #_________________________________________________________
 #
+
+ResultFile=/tmp/Rapport-Global_$(hostname)_$(date +%Y-%m-%d_%H:%M).log
+function genRapport () {
+
+
 if [[ $# -ne 0 ]]; then
 	echo "Usage: $0" >&2
 	exit 1
@@ -57,11 +65,14 @@ toiec() {
 }
 
 # tosi <KiB>
-tosi() {
-	echo "$(printf "%'d" $(((($1 << 10) / 1000) / 1000))) MB$([[ $1 -ge 1000000 ]] && echo " ($(numfmt --from=iec --to=si "${1}K")B)")"
-}
+#tosi() {
+#	echo "$(printf "%'d" $(((($1 << 10) / 1000) / 1000))) MB$([[ $1 -ge 1000000 ]] && echo " ($(numfmt --from=iec --to=si "${1}K")B)")"
+#}
+
+
 
 . /etc/os-release
+
 
 echo -e "\nLinux Distribution:\t\t${PRETTY_NAME:-$ID-$VERSION_ID}"
 
@@ -137,8 +148,8 @@ declare -A CPU_NUM_CACHES CPU_CACHE_SIZES CPU_TOTAL_CACHE_SIZES
 # CPU_L1D_CACHE_SIZE=$(getconf LEVEL1_DCACHE_SIZE)
 # CPU_L2_CACHE_SIZE=$(getconf LEVEL2_CACHE_SIZE)
 # CPU_L3_CACHE_SIZE=$(getconf LEVEL3_CACHE_SIZE)
-# CPU_L4_CACHE_SIZE=$(getconf LEVEL4_CACHE_SIZE)
-lists=()
+# CPU_ResultFile=/tmp/Rapport-disque_$(hostname)_$(date +%Y-%m-%d_%H:%M).log
+#()
 for dir in /sys/devices/system/cpu/cpu[0-9]*/cache; do
 	if [[ -d $dir ]]; then
 		for file in "$dir"/index[0-9]*/size; do
@@ -483,3 +494,8 @@ echo ""
 #ls /var/crash
 
 uptime
+
+}
+genRapport | tee -a $ResultFile
+
+echo "Les resultats de l'analyse se trouve ${ResultFile}"
