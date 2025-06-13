@@ -1,7 +1,6 @@
-
 #  Mise à jours Firmware
 #programs=(fwupd)
-# 
+#
 #for program in "${programs[@]}"; do
 #    if ! command -v "$program" > /dev/null 2>&1; then
 #        sudo apt install "$program" -y
@@ -49,7 +48,7 @@
 
 
 echo "=================DMIDECODE======================"
-echo 
+echo
 dmidecode --string='bios-vendor'
 dmidecode --string='bios-version'
 dmidecode --string='system-manufacturer'
@@ -57,12 +56,12 @@ dmidecode --string='system-product-name'
 dmidecode --string='system-version'
 dmidecode --string='baseboard-manufacturer'
 dmidecode --string='baseboard-product-name'
-echo 
+echo
 echo "====================BLKID=========================="
-echo 
+echo
 echo "========>>>> FULL DEV"
-blkid -o list 
-echo 
+blkid -o list
+echo
 echo "========>>>  /dev/sda"
 echo
 echo "-------------------------------------------------------------"
@@ -70,53 +69,54 @@ blkid /dev/sd* full
 echo "-------------------------------------------------------------"
 echo
 echo "====================LSBLK======================"
-echo 
+echo
 lsblk -fe7
-echo 
+echo
 echo "===================FICHIER BOOT======================"
-echo 
-sudo mkdir /media/InfoBoot
-truc=$(lsblk -f | grep 'vfat\|fat32'| cut -d ' ' -f14)
-mount -U $truc /media/InfoBoot
-ls /media/InfoBoot/*/* 
-umount -U $truc
-rm -rf /media/InfoBoot/
-echo 
+echo
+sudo mkdir /mnt/InfoBoot
+truc=$(sudo blkid | grep vfat | cut -d " " -f2 | awk -F '"' '{print $2}')
+sudo mount -U ${truc} /mnt/InfoBoot
+ls -R /mnt/InfoBoot
+sleep 3
+sudo umount /mnt/InfoBoot
+sleep 2
+sudo rm -rf /mnt/InfoBoot/
+sleep 2
+echo
 echo "==================== GRUB ENTRY================"
-echo 
+echo
 awk -F\' '/menuentry / {print $2}' /boot/grub/grub.cfg | cat -n
 echo
 cat /etc/grub2.cfg
-echo 
-echo "====================== GRUB.cfg ========================" 
+echo
+echo "====================== GRUB.cfg ========================"
 echo
 cat /boot/grub/grub.cfg
 echo
 echo "======================GRUB 40_CUSTOM========================"
-echo                      
+echo
 cat /etc/grub.d/40_custom
-echo 
+echo
 echo "======================KERNEL========================"
-echo 
+echo
 dpkg --list | grep linux-image | awk '{print $2}'
-echo 
+echo
 echo "======================FSTAB========================"
-echo 
+echo
 cat /etc/fstab | sed '1,6d'
-echo 
+echo
 echo "=============================================="
-echo 
+echo
 findmnt -t ext4,xfs,btrfs,f2fs,vfat,ntfs,hfsplus,iso9660,udf,nfs,cifs,zfs
-echo 
+echo
 echo "=============================================="
-echo 
+echo
 findmnt --fstab
-echo 
+echo
 echo "==============================================="
 echo "/proc/cmdline "
 cat /proc/cmdline
 echo
 echo "================type de demarrage =============="
 [ -d /sys/firmware/efi ] && echo "UEFI Boot Detected" || echo "Legacy BIOS Boot Detected"
-
-
