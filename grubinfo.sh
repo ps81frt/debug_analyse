@@ -1,144 +1,198 @@
-#  Mise à jours Firmware
-#programs=(fwupd)
-#
-#for program in "${programs[@]}"; do
-#    if ! command -v "$program" > /dev/null 2>&1; then
-#        sudo apt install "$program" -y
-#    fi
-#done
-# fwupdmgr  get-devices
-# fwupdmgr  refresh --force
-# fwupdmgr  get-updates | less
+#!/bin/bash
 
-###########################
-# Auto-Signature Noyaux dkms
-# Prerequis
-# sudo apt install dkms mokutil openssl
-# Controle activation
-# mokutil --sb-state
-# Creation dossier contenant le signature
-# mkdir -p /var/lib/shim-signed/mok
-# cd /var/lib/shim-signed/mok
-# openssl req -nodes -new -x509 -newkey rsa:2048 -keyout mok.priv -outform DER -out mok.der -days 36500 -subj "/CN=$(hostname)/"
-# mokutil --import /var/lib/shim-signed/mok/mok.der
-# Retenir le mot de passe
-# reboot
-# nano /etc/dkms/framework.conf
-# modifier en
-# mok_signing_key=/var/lib/shim-signed/mok/mok.priv
-# mok_certificate=/var/lib/shim-signed/mok/mok.der
+# Result log file
+ResultFile="/tmp/Rapport-GRUB_$(hostname)_$(date +%Y-%m-%d_%H:%M).log"
 
-# dkms status
+# Enhanced progress bar with ---C pattern
+progress_bar_enhanced() {
+    local duration=$1
+    local message="${2:-Processing}"
+    local width=40
+    local interval=0.2
+    local steps=$((duration * 5))
+    local pattern="---C"
+    local pattern_len=${#pattern}
 
-# supprimer et reinstaller le module afin qu'il soit signé
-# dkms remove xxxx
-# dkms install xxxx
-# modprobe -v xxxx
-# update-initramfs -u
+    echo -n "$message: ["
+    for ((i=0; i<width; i++)); do
+        echo -n " "
+    done
+    echo -n "]"
+    echo -ne "\r$message: ["
 
-# MODULES.
-# cat /lib/modules/$(uname -r)/modules.builtin
-# lsmod
-# modinfo parport
-# modinfo -n parport
-#
-#
-#
-#
+    for ((i=1; i<=steps; i++)); do
+        local progress=$(( (i * width) / steps ))
+        local done=$progress
+        local left=$((width - done))
 
-ResultFile=/tmp/Rapport-GRUB_$(hostname)_$(date +%Y-%m-%d_%H:%M).log
+        # Build done part using repeated pattern truncated to length 'done'
+        local done_part=""
+        while [ ${#done_part} -lt $done ]; do
+            done_part+=$pattern
+        done
+        done_part=${done_part:0:$done}
 
-function genReportGRUB () {
+        # Build left part with spaces
+        local left_part=""
+        for ((j=0; j<left; j++)); do
+            left_part+=" "
+        done
 
-uname -a
+        # Print progress bar
+        echo -ne "$done_part$left_part"
 
-echo 
-date
-echo
-echo "=================DMIDECODE======================"
-echo
-dmidecode --string='bios-vendor'
-dmidecode --string='bios-version'
-dmidecode --string='system-manufacturer'
-dmidecode --string='system-product-name'
-dmidecode --string='system-version'
-dmidecode --string='baseboard-manufacturer'
-dmidecode --string='baseboard-product-name'
-echo
-echo "====================BLKID=========================="
-echo
-echo "========>>>> FULL DEV"
-blkid -o list
-echo
-echo "========>>>  /dev/sda"
-echo
-echo "-------------------------------------------------------------"
-blkid /dev/sd* full
-echo "-------------------------------------------------------------"
-echo
-echo "====================LSBLK======================"
-echo
-lsblk -fe7
-echo
-lsblk -S
-echo
-echo "===================FICHIER BOOT======================"
-echo
-sudo mkdir /mnt/InfoBoot
-truc=$(sudo blkid | grep vfat | cut -d " " -f2 | awk -F '"' '{print $2}')
-sudo mount -U ${truc} /mnt/InfoBoot
-ls -R /mnt/InfoBoot
-sleep 3
-sudo umount /mnt/InfoBoot
-sleep 2
-sudo rm -rf /mnt/InfoBoot/
-sleep 2
-echo
-echo "==================== GRUB ENTRY================"
-echo
-awk -F\' '/menuentry / {print $2}' /boot/grub/grub.cfg | cat -n
-echo
-cat /etc/grub2.cfg
-echo
-echo "====================== GRUB.cfg ========================"
-echo
-cat /boot/grub/grub.cfg
-echo
-echo "======================GRUB 40_CUSTOM========================"
-echo
-cat /etc/grub.d/40_custom
+        # Print percentage
+        local percent=$(( (i * 100) / steps ))
+        echo -ne "] $percent%%"
 
-echo "======================KERNEL-DEB========================"
-echo
-dpkg --list | grep linux-image | awk '{print $2}'
-echo
-echo "======================KERNEL-ARCH========================"
-echo
-pacman -Q | grep linux  
-echo
-echo "======================FSTAB========================"
-echo
-cat /etc/fstab | sed '1,6d'
-echo
-echo "=============================================="
-echo
-findmnt -t ext4,xfs,btrfs,f2fs,vfat,ntfs,hfsplus,iso9660,udf,nfs,cifs,zfs
-echo
-echo "=============================================="
-echo
-findmnt --fstab
-echo
-echo "==============================================="
-echo "/proc/cmdline "
-cat /proc/cmdline
-echo
-echo "================type de demarrage =============="
-[ -d /sys/firmware/efi ] && echo "UEFI Boot Detected" || echo "Legacy BIOS Boot Detected"
-echo
-uptime
-
+        sleep $interval
+        echo -ne "\r$message: ["
+    done
+    echo -e "] Done!"
 }
 
-genReportGRUB | tee -a $ResultFile
+# Function to generate the GRUB report
+genReportGRUB () {
+    echo "|===============================|"
+    echo "|        uname -a               |"
+    echo "|===============================|"
+    uname -a
+    echo
 
-echo "Les resultats de l'analyse se trouve ${ResultFile}"
+    echo "|===============================|"
+    echo "|          date                 |"
+    echo "|===============================|"
+    date
+    echo
+
+    echo "|===============================|"
+    echo "|        DMIDECODE              |"
+    echo "|===============================|"
+    dmidecode --string='bios-vendor'
+    dmidecode --string='bios-version'
+    dmidecode --string='system-manufacturer'
+    dmidecode --string='system-product-name'
+    dmidecode --string='system-version'
+    dmidecode --string='baseboard-manufacturer'
+    dmidecode --string='baseboard-product-name'
+    echo
+
+    echo "|===============================|"
+    echo "|          BLKID                |"
+    echo "|===============================|"
+    echo "========>>>> FULL DEV"
+    blkid -o list
+    echo
+    echo "========>>>  /dev/sda"
+    echo "-------------------------------------------------------------"
+    blkid /dev/sd* full
+    echo "-------------------------------------------------------------"
+    echo
+
+    echo "|===============================|"
+    echo "|          LSBLK                |"
+    echo "|===============================|"
+    lsblk -fe7
+    echo
+    lsblk -S
+    echo
+
+    echo "|===============================|"
+    echo "|       FICHIER BOOT            |"
+    echo "|===============================|"
+    sudo mkdir -p /mnt/InfoBoot
+    local truc=$(sudo blkid | grep vfat | cut -d " " -f2 | awk -F '"' '{print $2}')
+    sudo mount -U ${truc} /mnt/InfoBoot
+    ls -R /mnt/InfoBoot
+    sleep 3
+    sudo umount /mnt/InfoBoot
+    sleep 2
+    sudo rm -rf /mnt/InfoBoot/
+    sleep 2
+    echo
+
+    echo "|===============================|"
+    echo "|        GRUB ENTRY             |"
+    echo "|===============================|"
+    awk -F\' '/menuentry / {print $2}' /boot/grub/grub.cfg | cat -n
+    echo
+
+    echo "|===============================|"
+    echo "|        /etc/grub2.cfg         |"
+    echo "|===============================|"
+    cat /etc/grub2.cfg
+    echo
+
+    echo "|===============================|"
+    echo "|        /boot/grub/grub.cfg    |"
+    echo "|===============================|"
+    cat /boot/grub/grub.cfg
+    echo
+
+    echo "|===============================|"
+    echo "|        /etc/grub.d/40_custom  |"
+    echo "|===============================|"
+    cat /etc/grub.d/40_custom
+    echo
+
+    echo "|===============================|"
+    echo "|       KERNEL-DEB              |"
+    echo "|===============================|"
+    dpkg --list | grep linux-image | awk '{print $2}'
+    echo
+
+    echo "|===============================|"
+    echo "|       KERNEL-ARCH             |"
+    echo "|===============================|"
+    pacman -Q | grep linux  
+    echo
+
+    echo "|===============================|"
+    echo "|         FSTAB                 |"
+    echo "|===============================|"
+    sed '1,6d' /etc/fstab
+    echo
+
+    echo "|===============================|"
+    echo "|       Mounted Filesystems     |"
+    echo "|===============================|"
+    findmnt -t ext4,xfs,btrfs,f2fs,vfat,ntfs,hfsplus,iso9660,udf,nfs,cifs,zfs
+    echo
+
+    echo "|===============================|"
+    echo "|       Filesystem Table (fstab) |"
+    echo "|===============================|"
+    findmnt --fstab
+    echo
+
+    echo "|===============================|"
+    echo "|         /proc/cmdline         |"
+    echo "|===============================|"
+    cat /proc/cmdline
+    echo
+
+    echo "|===============================|"
+    echo "|       Boot Mode Detection     |"
+    echo "|===============================|"
+    [ -d /sys/firmware/efi ] && echo "UEFI Boot Detected" || echo "Legacy BIOS Boot Detected"
+    echo
+
+    echo "|===============================|"
+    echo "|           Uptime              |"
+    echo "|===============================|"
+    uptime
+}
+
+# Show banner
+echo "==============================="
+echo "  Advanced GRUB Report Utility "
+echo "==============================="
+
+# Run progress bar for 8 seconds with message
+progress_bar_enhanced 8 "Collecting GRUB and System Info"
+
+# Run the report and save output to file
+genReportGRUB | tee -a "$ResultFile"
+
+echo
+echo "Analysis complete! Results saved in: $ResultFile"
