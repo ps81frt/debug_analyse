@@ -4,7 +4,7 @@
 #!/bin/bash
 
 # Script de vérification des options BIOS/UEFI
-OUTPUT_FILE="bios_check_$(date +%Y%m%d_%H%M%S).txt"
+OUTPUT_FILE="/tmp/bios_check_$(date +%Y%m%d_%H%M%S).txt"
 
 # Fonction pour vérifier et installer les paquets nécessaires
 check_and_install_packages() {
