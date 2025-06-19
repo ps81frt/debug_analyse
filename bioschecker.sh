@@ -10,7 +10,8 @@ OUTPUT_FILE="/tmp/bios_check_$(date +%Y%m%d_%H%M%S).txt"
 check_and_install_packages() {
     echo "Vérification des paquets nécessaires..."
     
-    PACKAGES_TO_CHECK=("mesa-utils" "vulkan-tools" "pciutils" "lshw" "dmidecode")
+    #PACKAGES_TO_CHECK=("mesa-utils" "vulkan-tools" "pciutils" "lshw" "dmidecode")  
+    PACKAGES_TO_CHECK=(pciutils" "lshw" "dmidecode")
     PACKAGES_TO_INSTALL=()
     
     for package in "${PACKAGES_TO_CHECK[@]}"; do
@@ -93,72 +94,73 @@ else
 fi
 echo "" >> "$OUTPUT_FILE"
 
-echo "=== CARTE GRAPHIQUE ===" >> "$OUTPUT_FILE"
-echo "--- Informations GPU via lspci ---" >> "$OUTPUT_FILE"
-lspci | grep -i vga >> "$OUTPUT_FILE" 2>&1
-lspci | grep -i 3d >> "$OUTPUT_FILE" 2>&1
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- Détails complets GPU ---" >> "$OUTPUT_FILE"
-lspci -v | grep -A 20 -i vga >> "$OUTPUT_FILE" 2>&1
-lspci -v | grep -A 20 -i 3d >> "$OUTPUT_FILE" 2>&1
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- Informations GPU via lshw ---" >> "$OUTPUT_FILE"
-lshw -class display >> "$OUTPUT_FILE" 2>&1
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- Pilotes graphiques ---" >> "$OUTPUT_FILE"
-lsmod | grep -i -E "(nvidia|amdgpu|radeon|nouveau|intel)" >> "$OUTPUT_FILE" 2>&1
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- OpenGL/Vulkan Support ---" >> "$OUTPUT_FILE"
-if command -v glxinfo >/dev/null 2>&1; then
-    echo "OpenGL Renderer:" >> "$OUTPUT_FILE"
-    glxinfo | grep -E "(OpenGL renderer|OpenGL version|OpenGL vendor)" >> "$OUTPUT_FILE" 2>&1
-else
-    echo "glxinfo non installé (paquet mesa-utils)" >> "$OUTPUT_FILE"
-fi
-
-if command -v vulkaninfo >/dev/null 2>&1; then
-    echo "Vulkan Support:" >> "$OUTPUT_FILE"
-    vulkaninfo --summary >> "$OUTPUT_FILE" 2>&1
-else
-    echo "vulkaninfo non installé (paquet vulkan-tools)" >> "$OUTPUT_FILE"
-fi
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- Cartes graphiques via dmidecode ---" >> "$OUTPUT_FILE"
-sudo dmidecode -t 9 | grep -A 10 -i "vga\|display\|graphic" >> "$OUTPUT_FILE" 2>&1
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- NVIDIA (si présent) ---" >> "$OUTPUT_FILE"
-if command -v nvidia-smi >/dev/null 2>&1; then
-    nvidia-smi >> "$OUTPUT_FILE" 2>&1
-else
-    echo "nvidia-smi non disponible" >> "$OUTPUT_FILE"
-fi
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- AMD GPU (si présent) ---" >> "$OUTPUT_FILE"
-if [ -f /sys/class/drm/card0/device/pp_dpm_sclk ]; then
-    echo "AMD GPU détecté:" >> "$OUTPUT_FILE"
-    cat /sys/class/drm/card*/device/pp_dpm_sclk >> "$OUTPUT_FILE" 2>&1
-else
-    echo "Pas de GPU AMD détecté" >> "$OUTPUT_FILE"
-fi
-echo "" >> "$OUTPUT_FILE"
-
-echo "--- Mémoire vidéo ---" >> "$OUTPUT_FILE"
-if [ -d /sys/class/drm ]; then
-    for card in /sys/class/drm/card*; do
-        if [ -f "$card/device/mem_info_vram_total" ]; then
-            echo "VRAM $(basename $card): $(cat $card/device/mem_info_vram_total)" >> "$OUTPUT_FILE" 2>&1
-        fi
-    done
-fi
-echo "" >> "$OUTPUT_FILE"
-
+#-----------------------------------------------------------------
+#echo "=== CARTE GRAPHIQUE ===" >> "$OUTPUT_FILE"
+#echo "--- Informations GPU via lspci ---" >> "$OUTPUT_FILE"
+#lspci | grep -i vga >> "$OUTPUT_FILE" 2>&1
+#lspci | grep -i 3d >> "$OUTPUT_FILE" 2>&1
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- Détails complets GPU ---" >> "$OUTPUT_FILE"
+#lspci -v | grep -A 20 -i vga >> "$OUTPUT_FILE" 2>&1
+#lspci -v | grep -A 20 -i 3d >> "$OUTPUT_FILE" 2>&1
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- Informations GPU via lshw ---" >> "$OUTPUT_FILE"
+#lshw -class display >> "$OUTPUT_FILE" 2>&1
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- Pilotes graphiques ---" >> "$OUTPUT_FILE"
+#lsmod | grep -i -E "(nvidia|amdgpu|radeon|nouveau|intel)" >> "$OUTPUT_FILE" 2>&1
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- OpenGL/Vulkan Support ---" >> "$OUTPUT_FILE"
+#if command -v glxinfo >/dev/null 2>&1; then
+#    echo "OpenGL Renderer:" >> "$OUTPUT_FILE"
+#    glxinfo | grep -E "(OpenGL renderer|OpenGL version|OpenGL vendor)" >> "$OUTPUT_FILE" 2>&1
+#else
+#    echo "glxinfo non installé (paquet mesa-utils)" >> "$OUTPUT_FILE"
+#fi
+#
+#if command -v vulkaninfo >/dev/null 2>&1; then
+#    echo "Vulkan Support:" >> "$OUTPUT_FILE"
+#    vulkaninfo --summary >> "$OUTPUT_FILE" 2>&1
+#else
+#    echo "vulkaninfo non installé (paquet vulkan-tools)" >> "$OUTPUT_FILE"
+#fi
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- Cartes graphiques via dmidecode ---" >> "$OUTPUT_FILE"
+#sudo dmidecode -t 9 | grep -A 10 -i "vga\|display\|graphic" >> "$OUTPUT_FILE" 2>&1
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- NVIDIA (si présent) ---" >> "$OUTPUT_FILE"
+#if command -v nvidia-smi >/dev/null 2>&1; then
+#    nvidia-smi >> "$OUTPUT_FILE" 2>&1
+#else
+#    echo "nvidia-smi non disponible" >> "$OUTPUT_FILE"
+#fi
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- AMD GPU (si présent) ---" >> "$OUTPUT_FILE"
+#if [ -f /sys/class/drm/card0/device/pp_dpm_sclk ]; then
+#    echo "AMD GPU détecté:" >> "$OUTPUT_FILE"
+#    cat /sys/class/drm/card*/device/pp_dpm_sclk >> "$OUTPUT_FILE" 2>&1
+#else
+#    echo "Pas de GPU AMD détecté" >> "$OUTPUT_FILE"
+#fi
+#echo "" >> "$OUTPUT_FILE"
+#
+#echo "--- Mémoire vidéo ---" >> "$OUTPUT_FILE"
+#if [ -d /sys/class/drm ]; then
+#    for card in /sys/class/drm/card*; do
+#        if [ -f "$card/device/mem_info_vram_total" ]; then
+#            echo "VRAM $(basename $card): $(cat $card/device/mem_info_vram_total)" >> "$OUTPUT_FILE" 2>&1
+#        fi
+#    done
+#fi
+#echo "" >> "$OUTPUT_FILE"
+#-----------------------------------------------------------------
 echo "=== MATÉRIEL GÉNÉRAL ===" >> "$OUTPUT_FILE"
 lshw -class system >> "$OUTPUT_FILE" 2>&1
 echo "" >> "$OUTPUT_FILE"
