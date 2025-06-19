@@ -1,7 +1,37 @@
+# Oneline
+# { echo "=== Vérification des paquets ==="; PACKAGES=("mesa-utils" "vulkan-tools" "pciutils" "lshw" "dmidecode"); MISSING=(); for pkg in "${PACKAGES[@]}"; do dpkg -l | grep -q "^ii  $pkg " || MISSING+=("$pkg"); done; if [ ${#MISSING[@]} -gt 0 ]; then echo "Installation des paquets manquants: ${MISSING[*]}"; sudo apt update && sudo apt install -y "${MISSING[@]}"; fi; echo "=== RAPPORT BIOS $(date) ==="; sudo dmidecode -t bios; echo "=== SYSTÈME ==="; sudo dmidecode -t system; echo "=== CPU ==="; lscpu; echo "=== VIRTUALISATION ==="; grep -E "(vmx|svm)" /proc/cpuinfo && echo "Virtualisation OK" || echo "Pas de virtualisation"; echo "=== SECURE BOOT ==="; mokutil --sb-state 2>/dev/null || echo "mokutil non disponible"; echo "=== TPM ==="; ls /dev/tpm* 2>/dev/null || echo "Pas de TPM"; echo "=== UEFI ==="; efibootmgr -v 2>/dev/null || echo "Système BIOS Legacy"; echo "=== CARTE GRAPHIQUE ==="; lspci | grep -i -E "vga|3d|display"; lspci -v | grep -A 15 -i -E "vga|3d"; echo "--- GPU via lshw ---"; lshw -class display 2>/dev/null; echo "--- Pilotes ---"; lsmod | grep -i -E "(nvidia|amdgpu|radeon|nouveau|intel)"; echo "--- OpenGL ---"; glxinfo | grep -E "(OpenGL renderer|OpenGL version)" 2>/dev/null || echo "glxinfo non disponible"; echo "--- Vulkan ---"; vulkaninfo --summary 2>/dev/null || echo "vulkaninfo non disponible"; echo "--- NVIDIA ---"; nvidia-smi 2>/dev/null || echo "nvidia-smi non disponible"; } > ~/bios_check_$(date +%Y%m%d_%H%M%S).txt 2>&1 && echo "Rapport créé dans: ~/bios_check_$(date +%Y%m%d_%H%M%S).txt"
+
 #!/bin/bash
 
 # Script de vérification des options BIOS/UEFI
 OUTPUT_FILE="bios_check_$(date +%Y%m%d_%H%M%S).txt"
+
+# Fonction pour vérifier et installer les paquets nécessaires
+check_and_install_packages() {
+    echo "Vérification des paquets nécessaires..."
+    
+    PACKAGES_TO_CHECK=("mesa-utils" "vulkan-tools" "pciutils" "lshw" "dmidecode")
+    PACKAGES_TO_INSTALL=()
+    
+    for package in "${PACKAGES_TO_CHECK[@]}"; do
+        if ! dpkg -l | grep -q "^ii  $package "; then
+            PACKAGES_TO_INSTALL+=("$package")
+        fi
+    done
+    
+    if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
+        echo "Installation des paquets manquants: ${PACKAGES_TO_INSTALL[*]}"
+        sudo apt update
+        sudo apt install -y "${PACKAGES_TO_INSTALL[@]}"
+        echo "Installation terminée."
+    else
+        echo "Tous les paquets nécessaires sont déjà installés."
+    fi
+    echo ""
+}
+
+# Vérifier et installer les paquets
+check_and_install_packages
 
 echo "=== RAPPORT DE VÉRIFICATION BIOS/UEFI ===" > "$OUTPUT_FILE"
 echo "Date: $(date)" >> "$OUTPUT_FILE"
