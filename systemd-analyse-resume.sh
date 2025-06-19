@@ -1,6 +1,5 @@
 #!/bin/bash                                                                                                                                                                                                                                                           
 
-# Script pour résumer le démarrage systemd
 # Compatible Debian, Red Hat, Arch, etc.
 
 TOP_N=20
