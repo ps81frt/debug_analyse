@@ -1,6 +1,5 @@
-# Oneline
-# sudo { echo "=== Vérification des paquets ==="; PACKAGES=("sg3-utils" "smartmontools" "hdparm" "lshw" "util-linux" "nvme-cli" "hddtemp"); MISSING=(); for pkg in "${PACKAGES[@]}"; do dpkg -l | grep -q "^ii  $pkg " || MISSING+=("$pkg"); done; if [ ${#MISSING[@]} -gt 0 ]; then echo "Installation: ${MISSING[*]}"; sudo apt update && sudo apt install -y "${MISSING[@]}"; fi; echo "=== RAPPORT DISQUES $(date) ==="; echo "=== LISTE DISQUES ==="; lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,MODEL,SERIAL; echo "=== SG3-UTILS SCAN ==="; sg_scan; echo "=== DISQUES SCSI/SATA ==="; for dev in /dev/sd[a-z]; do [ -e "$dev" ] && { echo "--- $dev ---"; sg_inq "$dev"; sg_readcap "$dev"; smartctl -H "$dev"; smartctl -A "$dev" | head -20; hdparm -I "$dev" | head -20; }; done; echo "=== DISQUES NVME ==="; for dev in /dev/nvme*n1; do [ -e "$dev" ] && { echo "--- $dev ---"; nvme id-ctrl "$dev" | head -10; nvme smart-log "$dev"; }; done 2>/dev/null || echo "Pas de NVMe"; echo "=== ESPACE DISQUE ==="; df -h; echo "=== TEMPÉRATURES ==="; for dev in /dev/sd[a-z]; do [ -e "$dev" ] && { echo "$dev:"; smartctl -A "$dev" | grep -i temp; hddtemp "$dev" 2>/dev/null; }; done; echo "=== ERREURS RÉCENTES ==="; dmesg | grep -i -E "(error|fail)" | grep -i -E "(sd|nvme|ata)" | tail -10; } > ~/disk_health_$(date +%Y%m%d_%H%M%S).txt 2>&1 && echo "Rapport disques créé dans: ~/disk_health_$(date +%Y%m%d_%H%M%S).txt"
-
+# # Oneline
+# { echo "=== Vérification des paquets ==="; PACKAGES=("sg3-utils" "smartmontools" "hdparm" "lshw" "util-linux" "nvme-cli" "hddtemp"); MISSING=(); for pkg in "${PACKAGES[@]}"; do dpkg -l | grep -q "^ii  $pkg " || MISSING+=("$pkg"); done; if [ ${#MISSING[@]} -gt 0 ]; then echo "Installation: ${MISSING[*]}"; sudo apt update && sudo apt install -y "${MISSING[@]}"; fi; echo "=== RAPPORT DISQUES $(date) ==="; echo "=== LISTE DISQUES ==="; lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,MODEL,SERIAL; echo "=== SG3-UTILS SCAN ==="; sudo sg_scan; echo "=== DISQUES SCSI/SATA ==="; for dev in /dev/sd[a-z]; do [ -e "$dev" ] && { echo "--- $dev ---"; sudo sg_inq "$dev"; sudo sg_readcap "$dev"; sudo smartctl -H "$dev"; sudo smartctl -A "$dev" | head -20; sudo hdparm -I "$dev" | head -20; }; done; echo "=== DISQUES NVME ==="; for dev in /dev/nvme*n1; do [ -e "$dev" ] && { echo "--- $dev ---"; sudo nvme id-ctrl "$dev" | head -10; sudo nvme smart-log "$dev"; }; done 2>/dev/null || echo "Pas de NVMe"; echo "=== ESPACE DISQUE ==="; df -h; echo "=== TEMPÉRATURES ==="; for dev in /dev/sd[a-z]; do [ -e "$dev" ] && { echo "$dev:"; sudo smartctl -A "$dev" | grep -i temp; sudo hddtemp "$dev" 2>/dev/null; }; done; echo "=== ERREURS RÉCENTES ==="; dmesg | grep -i -E "(error|fail)" | grep -i -E "(sd|nvme|ata)" | tail -10; echo "=== PARTITIONS ==="; sudo fdisk -l; } > ~/disk_health_$(date +%Y%m%d_%H%M%S).txt 2>&1 && echo "Rapport disques créé dans: ~/disk_health_$(date +%Y%m%d_%H%M%S).txt"
 
 #!/bin/bash
 
@@ -49,22 +48,22 @@ echo "" >> "$OUTPUT_FILE"
 
 echo "=== DISQUES SCSI/SATA (sg3-utils) ===" >> "$OUTPUT_FILE"
 echo "--- Scan des périphériques SCSI ---" >> "$OUTPUT_FILE"
-sg_scan >> "$OUTPUT_FILE" 2>&1
+sudo sg_scan >> "$OUTPUT_FILE" 2>&1
 echo "" >> "$OUTPUT_FILE"
 
 echo "--- Informations SCSI détaillées ---" >> "$OUTPUT_FILE"
 for device in /dev/sd*; do
     if [[ $device =~ /dev/sd[a-z]$ ]]; then
         echo "=== $device ===" >> "$OUTPUT_FILE"
-        sg_inq "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo sg_inq "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- Capacité $device ---" >> "$OUTPUT_FILE"
-        sg_readcap "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo sg_readcap "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- Mode Sense $device ---" >> "$OUTPUT_FILE"
-        sg_modes "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo sg_modes "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
     fi
 done
@@ -73,19 +72,19 @@ echo "=== SMART STATUS ===" >> "$OUTPUT_FILE"
 for device in /dev/sd*; do
     if [[ $device =~ /dev/sd[a-z]$ ]]; then
         echo "=== SMART $device ===" >> "$OUTPUT_FILE"
-        smartctl -i "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo smartctl -i "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- SMART Health $device ---" >> "$OUTPUT_FILE"
-        smartctl -H "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo smartctl -H "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- SMART Attributes $device ---" >> "$OUTPUT_FILE"
-        smartctl -A "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo smartctl -A "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- SMART Test Results $device ---" >> "$OUTPUT_FILE"
-        smartctl -l selftest "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo smartctl -l selftest "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
     fi
 done
@@ -94,11 +93,11 @@ echo "=== INFORMATIONS HDPARM ===" >> "$OUTPUT_FILE"
 for device in /dev/sd*; do
     if [[ $device =~ /dev/sd[a-z]$ ]]; then
         echo "=== HDPARM $device ===" >> "$OUTPUT_FILE"
-        hdparm -I "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo hdparm -I "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- Vitesse $device ---" >> "$OUTPUT_FILE"
-        hdparm -t "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo hdparm -t "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
     fi
 done
@@ -107,11 +106,11 @@ echo "=== DISQUES NVME ===" >> "$OUTPUT_FILE"
 if ls /dev/nvme* >/dev/null 2>&1; then
     for device in /dev/nvme*n1; do
         echo "=== $device ===" >> "$OUTPUT_FILE"
-        nvme id-ctrl "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo nvme id-ctrl "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
         
         echo "--- SMART NVMe $device ---" >> "$OUTPUT_FILE"
-        nvme smart-log "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo nvme smart-log "$device" >> "$OUTPUT_FILE" 2>&1
         echo "" >> "$OUTPUT_FILE"
     done
 else
@@ -128,15 +127,15 @@ mount >> "$OUTPUT_FILE" 2>&1
 echo "" >> "$OUTPUT_FILE"
 
 echo "=== PARTITIONS ===" >> "$OUTPUT_FILE"
-fdisk -l >> "$OUTPUT_FILE" 2>&1
+sudo fdisk -l >> "$OUTPUT_FILE" 2>&1
 echo "" >> "$OUTPUT_FILE"
 
 echo "=== TEMPÉRATURE DES DISQUES ===" >> "$OUTPUT_FILE"
 for device in /dev/sd*; do
     if [[ $device =~ /dev/sd[a-z]$ ]]; then
         echo "Température $device:" >> "$OUTPUT_FILE"
-        smartctl -A "$device" | grep -i temperature >> "$OUTPUT_FILE" 2>&1
-        hddtemp "$device" >> "$OUTPUT_FILE" 2>&1
+        sudo smartctl -A "$device" | grep -i temperature >> "$OUTPUT_FILE" 2>&1
+        sudo hddtemp "$device" >> "$OUTPUT_FILE" 2>&1
     fi
 done
 echo "" >> "$OUTPUT_FILE"
