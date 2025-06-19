@@ -10,8 +10,8 @@ OUTPUT_FILE="/tmp/bios_check_$(date +%Y%m%d_%H%M%S).txt"
 check_and_install_packages() {
     echo "Vérification des paquets nécessaires..."
     
-    #PACKAGES_TO_CHECK=("mesa-utils" "vulkan-tools" "pciutils" "lshw" "dmidecode")  
-    PACKAGES_TO_CHECK=(pciutils" "lshw" "dmidecode")
+    PACKAGES_TO_CHECK=("mesa-utils" "vulkan-tools" "pciutils" "lshw" "dmidecode")  
+    #PACKAGES_TO_CHECK=(pciutils" "lshw" "dmidecode")
     PACKAGES_TO_INSTALL=()
     
     for package in "${PACKAGES_TO_CHECK[@]}"; do
