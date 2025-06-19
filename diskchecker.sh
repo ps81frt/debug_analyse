@@ -4,7 +4,7 @@
 #!/bin/bash
 
 # Script de vérification de l'état des disques
-OUTPUT_FILE="disk_health_$(date +%Y%m%d_%H%M%S).txt"
+OUTPUT_FILE="/tmp/disk_health_$(date +%Y%m%d_%H%M%S).txt"
 
 # Fonction pour vérifier et installer les paquets nécessaires
 check_and_install_packages() {
