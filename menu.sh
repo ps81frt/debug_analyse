@@ -3,7 +3,6 @@
 REPO_DIR="./debug_analyse"
 COLS=3
 
-# Vérifie que le répertoire existe
 verifier_repertoire() {
   if [ ! -d "$REPO_DIR" ]; then
     echo "[ERREUR] Répertoire $REPO_DIR introuvable."
@@ -11,7 +10,6 @@ verifier_repertoire() {
   fi
 }
 
-# Charge tous les scripts .sh dans un tableau global
 charger_scripts() {
   mapfile -d '' scripts < <(find "$REPO_DIR" -maxdepth 1 -type f -name "*.sh" -print0 | sort -z)
   nb_scripts=${#scripts[@]}
@@ -21,7 +19,6 @@ charger_scripts() {
   fi
 }
 
-# Affiche le menu sous forme de tableau
 afficher_menu() {
   echo "=== Menu Debug Analyse (auto) ==="
   local i=0
@@ -37,11 +34,10 @@ afficher_menu() {
   if (( nb_scripts % COLS != 0 )); then
     echo
   fi
-  echo "[0] Quitter"
+  echo "[0/q] Quitter"
   echo -n "Choisissez une option : "
 }
 
-# Exécute le script choisi
 executer_script() {
   local index=$1
   local script="${scripts[$index]}"
@@ -52,27 +48,29 @@ executer_script() {
   read -p "Appuyez sur Entrée pour revenir au menu..."
 }
 
-# Boucle principale du menu
 menu_principal() {
   while true; do
     afficher_menu
     read choix
-    if [[ "$choix" =~ ^[0-9]+$ ]]; then
-      if [ "$choix" -eq 0 ]; then
+    case "$choix" in
+      0|q|Q)
         echo "Au revoir !"
         exit 0
-      elif [ "$choix" -ge 1 ] && [ "$choix" -le "$nb_scripts" ]; then
-        executer_script $((choix-1))
-      else
-        echo "Option invalide."
-      fi
-    else
-      echo "Veuillez entrer un nombre."
-    fi
+        ;;
+      ''|*[!0-9qQ]*)
+        echo "Veuillez entrer un nombre valide ou 'q' pour quitter."
+        ;;
+      *)
+        if [ "$choix" -ge 1 ] && [ "$choix" -le "$nb_scripts" ]; then
+          executer_script $((choix-1))
+        else
+          echo "Option invalide."
+        fi
+        ;;
+    esac
   done
 }
 
-# Programme principal
 verifier_repertoire
 charger_scripts
 menu_principal
