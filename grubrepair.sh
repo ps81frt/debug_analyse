@@ -157,35 +157,49 @@ detect_root_device_and_partition() {
     [ -z "$ROOT_PARTITION" ] && { echo "--- ERREUR: Partition racine introuvable." ; cleanup_on_error ; } ;
     echo "Partition racine: $ROOT_PARTITION" ;
 
-    # Tentative de détection du disque physique parent
-    PARENT_DEVICE=$(lsblk -no PKNAME "$ROOT_PARTITION")
+    # Initialisation variable disque principal
+    ROOT_DEVICE=""
 
-    # Si PKNAME vide et device mapper, remonter vers le disque physique
-    if [ -z "$PARENT_DEVICE" ] && [[ "$ROOT_PARTITION" == /dev/mapper/* ]]; then
-        # Récupérer la chaîne d'info lsblk complète
-        PARENT_DEVICE=$(lsblk -no PKNAME $(lsblk -no PKNAME "$ROOT_PARTITION"))
-    fi
+    # Première tentative : parent direct
+    PARENT_DEVICE=$(lsblk -no PKNAME "$ROOT_PARTITION" 2>/dev/null)
 
-    # Si toujours vide, essayer une autre méthode en parcourant la hiérarchie avec lsblk -no NAME
-    if [ -z "$PARENT_DEVICE" ]; then
-        ROOT_BASE=$(lsblk -no NAME "$ROOT_PARTITION")
-        while true; do
-            PARENT=$(lsblk -no PKNAME "/dev/$ROOT_BASE")
-            if [ -z "$PARENT" ]; then
-                # Pas de parent, on est au disque principal
-                ROOT_DEVICE="/dev/$ROOT_BASE"
-                break
-            else
-                ROOT_BASE=$PARENT
-            fi
-        done
-    else
+    if [ -n "$PARENT_DEVICE" ]; then
+        echo "Parent device (PKNAME) direct: $PARENT_DEVICE"
         ROOT_DEVICE="/dev/$PARENT_DEVICE"
+    else
+        echo "Pas de parent direct via PKNAME."
+
+        # Si root est un device mapper (LVM), tenter de remonter la chaîne
+        if [[ "$ROOT_PARTITION" == /dev/mapper/* ]]; then
+            echo "Partition racine est un device mapper, tentative de remontée..."
+
+            # Remonter la chaîne des parents
+            current_dev="$ROOT_PARTITION"
+            while true; do
+                parent=$(lsblk -no PKNAME "$current_dev" 2>/dev/null)
+                if [ -z "$parent" ]; then
+                    echo "Disque physique trouvé : $current_dev"
+                    ROOT_DEVICE="$current_dev"
+                    break
+                else
+                    echo "Parent de $current_dev est $parent"
+                    current_dev="/dev/$parent"
+                fi
+            done
+        else
+            echo "--- ERREUR: Impossible de déterminer le disque principal pour $ROOT_PARTITION"
+            cleanup_on_error
+        fi
     fi
 
-    [ ! -b "$ROOT_DEVICE" ] && { echo "--- ERREUR: Disque principal ($ROOT_DEVICE) non valide." ; cleanup_on_error ; } ;
-    echo "Disque principal: $ROOT_DEVICE" ;
-    echo "" ;
+    # Vérification finale que ROOT_DEVICE est un bloc device valide
+    if [ ! -b "$ROOT_DEVICE" ]; then
+        echo "--- ERREUR: Disque principal ($ROOT_DEVICE) non valide."
+        cleanup_on_error
+    fi
+
+    echo "Disque principal: $ROOT_DEVICE"
+    echo ""
 }
 
 detect_boot_partition() {
