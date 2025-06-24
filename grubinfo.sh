@@ -99,11 +99,10 @@ genReportGRUB () {
     echo "|          BLKID                |"
     echo "|===============================|"
     echo "========>>>> FULL DEV"
-    blkid /dev/sd* 2>/dev/null || echo "No /dev/sd* devices found"
     echo
     echo "========>>>  /dev/sda"
     echo "-------------------------------------------------------------"
-    blkid /dev/sd* full
+    blkid /dev/sd* full 2>/dev/null || echo "No /dev/sd* devices found"
     echo "-------------------------------------------------------------"
     echo
 
