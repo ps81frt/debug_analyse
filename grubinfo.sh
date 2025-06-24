@@ -50,6 +50,17 @@ progress_bar_enhanced() {
     done
     echo -e "] Done!"
 }
+cleanup_on_error() {
+    if mountpoint -q /mnt/InfoBoot 2>/dev/null; then
+        sudo umount /mnt/InfoBoot 2>/dev/null || true
+    fi
+    if [ -d /mnt/InfoBoot ]; then
+        sudo rm -rf /mnt/InfoBoot 2>/dev/null || true
+    fi
+}
+
+trap 'cleanup_on_error' ERR EXIT
+
 
 # Function to generate the GRUB report
 genReportGRUB () {
@@ -81,7 +92,7 @@ genReportGRUB () {
     echo "|          BLKID                |"
     echo "|===============================|"
     echo "========>>>> FULL DEV"
-    blkid -o list
+    blkid /dev/sd* 2>/dev/null || echo "No /dev/sd* devices found"
     echo
     echo "========>>>  /dev/sda"
     echo "-------------------------------------------------------------"
@@ -101,56 +112,63 @@ genReportGRUB () {
     echo "|       FICHIER BOOT            |"
     echo "|===============================|"
     sudo mkdir -p /mnt/InfoBoot
-    local truc=$(sudo blkid | grep vfat | cut -d " " -f2 | awk -F '"' '{print $2}')
-    sudo mount -U ${truc} /mnt/InfoBoot
-    ls -R /mnt/InfoBoot
-    sleep 3
-    sudo umount /mnt/InfoBoot
+    local truc=$(sudo blkid | grep vfat | head -1 | cut -d " " -f2 | awk -F '"' '{print $2}')
+    if [ -n "$truc" ]; then
+        if sudo mount -U ${truc} /mnt/InfoBoot 2>/dev/null; then
+            ls -R /mnt/InfoBoot
+            sleep 3
+            sudo umount /mnt/InfoBoot
+        else
+            echo "Failed to mount boot partition"
+        fi
+    else
+        echo "No vfat partition found"
+    fi
     sleep 2
     sudo rm -rf /mnt/InfoBoot/
     sleep 2
-    echo
+    echo  
 
     echo "|===============================|"
     echo "|        GRUB ENTRY             |"
     echo "|===============================|"
-    awk -F\' '/menuentry / {print $2}' /boot/grub/grub.cfg | cat -n
+    awk -F\' '/menuentry / {print $2}' /boot/grub/grub.cfg | cat -n 2>/dev/null
     echo
 
     echo "|===============================|"
     echo "|        /etc/grub2.cfg         |"
     echo "|===============================|"
-    cat /etc/grub2.cfg
+    cat /etc/grub2.cfg 2>/dev/null || echo "/etc/grub2.cfg not found"
     echo
 
     echo "|===============================|"
     echo "|        /boot/grub/grub.cfg    |"
     echo "|===============================|"
-    cat /boot/grub/grub.cfg
+    cat /boot/grub/grub.cfg 2>/dev/null || echo "/boot/grub/grub.cfg not found"
     echo
 
     echo "|===============================|"
     echo "|        /etc/grub.d/40_custom  |"
     echo "|===============================|"
-    cat /etc/grub.d/40_custom
+    cat /etc/grub.d/40_custom 2>/dev/null || echo "/etc/grub.d/40_custom not found"
     echo
 
     echo "|===============================|"
     echo "|       KERNEL-DEB              |"
     echo "|===============================|"
-    dpkg --list | grep linux-image | awk '{print $2}'
+    dpkg --list 2>/dev/null | grep linux-image | awk '{print $2}' || echo "dpkg not available"
     echo
 
     echo "|===============================|"
     echo "|       KERNEL-ARCH             |"
     echo "|===============================|"
-    pacman -Q | grep linux  
+    pacman -Q 2>/dev/null | grep linux || echo "pacman not available"
     echo
 
     echo "|===============================|"
     echo "|         FSTAB                 |"
     echo "|===============================|"
-    sed '1,6d' /etc/fstab
+    sed '1,6d' /etc/fstab 2>/dev/null || echo "/etc/fstab not found"
     echo
 
     echo "|===============================|"
@@ -168,7 +186,7 @@ genReportGRUB () {
     echo "|===============================|"
     echo "|         /proc/cmdline         |"
     echo "|===============================|"
-    cat /proc/cmdline
+    cat /proc/cmdline 2>/dev/null || echo "/proc/cmdline not found"
     echo
 
     echo "|===============================|"
