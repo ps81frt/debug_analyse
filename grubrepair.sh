@@ -156,9 +156,33 @@ detect_root_device_and_partition() {
     ROOT_PARTITION=$(df / | awk 'NR==2 {print $1}') ;
     [ -z "$ROOT_PARTITION" ] && { echo "--- ERREUR: Partition racine introuvable." ; cleanup_on_error ; } ;
     echo "Partition racine: $ROOT_PARTITION" ;
-    PARENT_DEVICE=$(lsblk -no PKNAME "$ROOT_PARTITION") ;
-    [ -z "$PARENT_DEVICE" ] && { echo "--- ERREUR: Impossible de déterminer le disque principal." ; cleanup_on_error ; } ;
-    ROOT_DEVICE="/dev/$PARENT_DEVICE" ;
+
+    # Tentative de détection du disque physique parent
+    PARENT_DEVICE=$(lsblk -no PKNAME "$ROOT_PARTITION")
+
+    # Si PKNAME vide et device mapper, remonter vers le disque physique
+    if [ -z "$PARENT_DEVICE" ] && [[ "$ROOT_PARTITION" == /dev/mapper/* ]]; then
+        # Récupérer la chaîne d'info lsblk complète
+        PARENT_DEVICE=$(lsblk -no PKNAME $(lsblk -no PKNAME "$ROOT_PARTITION"))
+    fi
+
+    # Si toujours vide, essayer une autre méthode en parcourant la hiérarchie avec lsblk -no NAME
+    if [ -z "$PARENT_DEVICE" ]; then
+        ROOT_BASE=$(lsblk -no NAME "$ROOT_PARTITION")
+        while true; do
+            PARENT=$(lsblk -no PKNAME "/dev/$ROOT_BASE")
+            if [ -z "$PARENT" ]; then
+                # Pas de parent, on est au disque principal
+                ROOT_DEVICE="/dev/$ROOT_BASE"
+                break
+            else
+                ROOT_BASE=$PARENT
+            fi
+        done
+    else
+        ROOT_DEVICE="/dev/$PARENT_DEVICE"
+    fi
+
     [ ! -b "$ROOT_DEVICE" ] && { echo "--- ERREUR: Disque principal ($ROOT_DEVICE) non valide." ; cleanup_on_error ; } ;
     echo "Disque principal: $ROOT_DEVICE" ;
     echo "" ;
