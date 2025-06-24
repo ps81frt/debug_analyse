@@ -100,9 +100,11 @@ genReportGRUB () {
     echo "|===============================|"
     echo "========>>>> FULL DEV"
     echo
+    blkid /dev/sd* full 2>/dev/null || echo "No /dev/sd* devices found"
+    echo
     echo "========>>>  /dev/sda"
     echo "-------------------------------------------------------------"
-    blkid /dev/sd* full 2>/dev/null || echo "No /dev/sd* devices found"
+    blkid /dev/sda full 2>/dev/null || echo "No /dev/sda devices found"
     echo "-------------------------------------------------------------"
     echo
 
