@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Permissions
+SCRIPT_PATH="$(realpath "$0")"
+if [ "$EUID" -ne 0 ]; then
+   exec sudo bash "$SCRIPT_PATH" "$@"
+   exit
+fi  
+
 # Result log file
 ResultFile="/tmp/Rapport-GRUB_$(hostname)_$(date +%Y-%m-%d_%H:%M).log"
 
